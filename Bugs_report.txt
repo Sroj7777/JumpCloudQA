@@ -1,0 +1,124 @@
+Please find below the bugs identified during test execution.  
+You please refer the test result spreadsheet also for more details. 
+
+BUG #1:
+- Application doesn't wait for http connections when application launched
+
+DESCRIPTION:
+As per assignment details, Application should wait for http connections when application launched.
+It was observed that application was able to send the response immediately. 
+Application haven't had any kind of wait and response was immediate after launched.
+
+
+BUG #2:
+- Unique job identifier not returned immediately
+
+DESCRIPTION:
+In the details of the QA assignment, Unique identifier should be returned immediately.
+Also, it should wait 5 seconds to compute the password hash using hashing algorithm.
+However, It was observed that job identifier was not retured immediately and it takes approx 5 seconds to return the job identifier. 
+It appears that job identifier is returned only after the hash compute has been perfomed.
+As per requirement, job identifier should not wait till compute is finished.    
+
+BUG #3:
+- Password is hashed incorrectly
+
+DESCRIPTION:
+- It was expalined in the assignment that A GET to the hash endpoint should return the
+encoded password hash. But it does not match up to the expected value.  
+
+Please find below the examples to explain the scenario:
+
+Body Passed in POST requet to hash: {"password": "angrymonkey"}
+
+Response after Password Hash: NN0PAKtieayiTY8/Qd53AeMzHkbvZDdwYYiDnwtDdv/FIWvcy1sKCb7qi7Nu8Q8Cd/MqjQeyCI0pWKDGp74A1g==
+
+Body Passed in POST requet to hash: {"pwd": "angrymonkey"}
+
+Response after Password Hash: z4PhNX7vuL3xVChQ1m2AB9Yg5AULVxXcg/SpIdNs6c5H0NE8XYXysP+DGNKHfuwvY7kxvUdBeoGlODJ6+SfaPg==
+
+Body Passed in POST requet to hash: {"password": "pwd"}
+
+Response after Password Hash:7hBn0sVNiwlbt7OTeqQJaMw0deQ2BDOov4FiF+gjJx/MnnIi3Z5Xr7VnXZmbiPSVdO2OajgzsUN5EOmrp7ZXXw==
+
+Above 3 request provide 3 different results. We are not sure if Password hashing is dependent on Password key or value as at atleast 2 response should have matched or 
+second request should have been rejected due to invalid password key.   
+
+BUG #4:
+- Password key is not validated by application in A POST to hash endpoint
+
+DESCRIPTION:
+- Application should perform the validation that key for password should be only "password"  and validation should be performed for the same. 
+
+Body Passed in POST requet to hash: {"pwd": "angrymonkey"}
+
+Returned Password Hash: z4PhNX7vuL3xVChQ1m2AB9Yg5AULVxXcg/SpIdNs6c5H0NE8XYXysP+DGNKHfuwvY7kxvUdBeoGlODJ6+SfaPg==
+
+Password key was allowed other values such as pwd and service doesn't validate the key. Application should have returned error.
+
+
+BUG #5: 
+- Application hashing should not be allowed when no password was provided
+
+DESCRIPTION:
+- Application should have displayed error when no password value was passed in request below: 
+
+Body Passed in POST requet to hash: {"password": ""}
+
+Empty password string doesn't result into an error.
+
+
+BUG #6:
+- Application doesn't not perform any validation when key or value both are not provided in POST request 
+
+DESCRIPTION:
+- Empty request should have been resulted into validation error during POST request.
+
+Body Passed in POST requet to hash: {"": ""}
+
+Service Response value:z4PhNX7vuL3xVChQ1m2AB9Yg5AULVxXcg/SpIdNs6c5H0NE8XYXysP+DGNKHfuwvY7kxvUdBeoGlODJ6+SfaPg==
+
+Application should display the error in this case.
+
+BUG #7:
+- Password value as password should not be allowed in POST request 
+
+DESCRIPTION:
+- Application POST request should not allowed password as a value for password.
+
+Body Passed in POST requet to hash: {"password": "password"}
+
+Service Response value:sQnzu7wkTrgkQZF+0G1hi5AI3Qmzvv0bXgc5THBqi7mAsdd4Xll27ASbRt9fEyavWi6m0QP9B8lThf+rDKy8hg==
+
+Application should display the error in this case. Even thought it is not clear in requirement document but it can be considered as NFR requirement.
+
+
+BUG #8:
+- GET Request for stats doesn't calculate the Average Time correctly
+
+DESCRIPTION:
+- It observed that average time is not calculated correctly.  However,  I have observed that Total requests number 
+are calculated successfully by service.  As per my calculation, service response was returned in approx 5 seconds. 
+But it was observed that initially it was returning more than that and slowly average time was gradually decreasing.
+It appears that calculation for average time is incorrect. 
+
+BUG #9:
+- GET Request for stats accepts the password value as parameter which should not be accepted 
+
+DESCRIPTION:
+- It was observed that stats was accepting parameters in header.  
+For example: I was able to pass password as angrymonkey for stats which is not required 
+
+I am not sure about this bug but it appears to be a NFR kind of requirement
+
+BUG #10:
+- Application shutdown doesn't capture its end state 
+
+DESCRIPTION:
+- As per document, application should shut down gracefully. It should store its shutdown state like number of requests and average time.
+I am not sure if it is a bug or not but it should record its end state as part of graceful shutdown.
+  
+For example: After service restart application doesn't start from the point when its shutdown was initiated.  
+After restart service again shows number of request starting from number 1 rather than last state of service.   
+In case of any service failure all previous request and average time details will be wiped out.    
+
